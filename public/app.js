@@ -810,48 +810,6 @@ function viewPortaal(){
       </div>
     </div>
 
-    <div class="card pad" style="margin-bottom:18px;background:var(--ink);text-align:center;padding:24px">
-      <h2 style="font-family:var(--font-d);font-size:20px;font-weight:800;color:var(--yellow);margin-bottom:24px">Jouw Reparatie in 3 Simpele Stappen</h2>
-      <div style="display:flex;justify-content:center;align-items:flex-end;gap:24px;flex-wrap:wrap">
-        
-        <!-- Bubble 1: Small -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
-          <div style="position:relative;width:90px;height:90px">
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible">
-              <path d="M 50,5 A 45,45 0 1,1 18,81 L 5,105 L 32,89 A 45,45 0 0,1 50,5 Z" fill="none" stroke="var(--yellow)" stroke-width="5" stroke-linejoin="round"/>
-            </svg>
-            <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:grid;place-items:center;padding:10%">
-              <span style="font-family:var(--font-d);font-weight:800;font-size:14px;color:#fff;line-height:1.2">1.<br/>MELD<br/>AAN</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bubble 2: Medium -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
-          <div style="position:relative;width:110px;height:110px">
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible">
-              <path d="M 50,5 A 45,45 0 1,1 18,81 L 5,105 L 32,89 A 45,45 0 0,1 50,5 Z" fill="none" stroke="var(--yellow)" stroke-width="5" stroke-linejoin="round"/>
-            </svg>
-            <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:grid;place-items:center;padding:10%">
-              <span style="font-family:var(--font-d);font-weight:800;font-size:16px;color:#fff;line-height:1.2">2.<br/>VOLG<br/>LIVE</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bubble 3: Large -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
-          <div style="position:relative;width:140px;height:140px">
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible">
-              <path d="M 50,5 A 45,45 0 1,1 18,81 L 5,105 L 32,89 A 45,45 0 0,1 50,5 Z" fill="none" stroke="var(--yellow)" stroke-width="5" stroke-linejoin="round"/>
-            </svg>
-            <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:grid;place-items:center;padding:10%">
-              <span style="font-family:var(--font-d);font-weight:800;font-size:20px;color:#fff;line-height:1.1">3.<br/>SNEL<br/>WEER<br/>KIJKEN!</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
 
     <div id="trackResult" style="margin-top:18px">${portalCard(o)}</div>
   </div>`;
@@ -880,7 +838,7 @@ function portalCard(o){
    ROUTER + EVENTS
 ===================================================================== */
 const RENDER = {dashboard:viewDashboard,reparaties:viewReparaties,aanmelden:viewAanmelden,
-  logistiek:viewLogistiek,whatsapp:viewWhatsapp,odm:viewOdm,sla:viewSla,portaal:viewPortaal};
+  logistiek:viewLogistiek,whatsapp:viewWhatsapp,odm:viewOdm,sla:viewSla,portaal:viewPortaal,klantform:viewKlantform};
 
 function navigate(view,arg){
   // active nav
