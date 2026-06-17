@@ -512,9 +512,16 @@ function viewWhatsapp(){
   <div id="tab-extern" class="grid" style="grid-template-columns:1fr 1fr;align-items:start;display:none">
     <div>
       <div class="wa">
-        <div class="wa-head" style="background:#0f7a37">
-          <div class="ava" style="background:#fff">${ic('chat')}</div>
-          <div><div class="nm">helloTV Doetinchem (Filiaal)</div><div class="st" style="color:#e4f7ea">Klantenservice Bot</div></div>
+        <div class="wa-head" style="background:#0f7a37;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="ava" style="background:#fff">${ic('chat')}</div>
+            <div><div class="nm" id="waStoreName">helloTV Doetinchem (Filiaal)</div><div class="st" style="color:#e4f7ea">Klantenservice Bot</div></div>
+          </div>
+          <div>
+            <select id="waStoreSelect" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);padding:4px 8px;border-radius:6px;outline:none;font-size:12px;font-family:inherit">
+              ${['Doetinchem', 'Amsterdam', 'Breda', 'Den Bosch', 'Den Haag', 'Duiven', 'Eindhoven', 'Groningen', 'Haarlem', 'Leeuwarden', 'Leiderdorp', 'Nijmegen', 'Rotterdam', 'Tilburg', 'Utrecht', 'Zoeterwoude'].map(s => `<option value="${s}" style="color:#000">${s}</option>`).join('')}
+            </select>
+          </div>
         </div>
         <div class="wa-body" id="waBodyExtern">
           ${bubble('in','Welkom bij helloTV Doetinchem! Hoe kunnen we je helpen?','10:00')}
@@ -546,38 +553,59 @@ function bubble(dir,html,tm){return `<div class="bub ${dir}">${html}<span class=
 
 function botReplyIntern(qRaw){
   const q=qRaw.toLowerCase().trim();
+  
+  // Order lookup
   const o=ORDERS.find(x=>q.includes(x.id)||q.includes(x.serie.toLowerCase()));
   if(o){
     const cur=o.timeline.find(t=>t.s==='current'||t.s==='alert')||o.timeline[o.timeline.length-1];
     return `<strong>${o.merk} ${o.type}</strong> — order ${o.id}\n📦 Status: <strong>${STATUS[o.status].label}</strong>\n👤 ${o.klant} (${o.filiaal})\n🗓️ ETA: ${o.eta}\n📍 Laatste stap: ${cur.t}\n${o.leen?'🔁 Leentoestel actief.\n':''}✅ Klant is automatisch op de hoogte gehouden.`;
   }
+  
+  // Stock check
   if(q.includes('voorraad')){
     const hit=ODM.find(x=>q.includes(x.merk.toLowerCase()));
     if(hit) return `Voorraad <strong>${hit.merk} ${hit.type}</strong>:\n📍 ${hit.loc}\nStatus: ${ODM_STATUS[hit.status].label}\n(bron: ODM-lijst, live gesynchroniseerd)`;
     return `Voorraadcheck loopt live via de centrale database. Noem een merk/type, dan zoek ik het filiaal erbij — bijv. "voorraad LG OLED".`;
   }
-  if(q.includes('eta')) return `ETA-wijzigingen worden automatisch doorgezet naar de klant zodra het merk een nieuwe datum meldt. Geef een ordernummer, dan toon ik de actuele ETA.`;
-  if(/(hoi|hallo|hey|help)/.test(q)) return `Ik help je met orderstatus, ETA, voorraad en garantie. Stuur een ordernummer (bijv. 251195109).`;
-  return `Ik kon daar geen order bij vinden. Probeer een ordernummer (8 cijfers) of een serienummer. Voorbeeld: 251195109.`;
+  
+  // ETA logic
+  if(q.includes('eta') || q.includes('wanneer')) return `ETA-wijzigingen worden automatisch doorgezet naar de klant zodra het merk een nieuwe datum meldt. Geef een ordernummer, dan toon ik de actuele ETA.`;
+  
+  // Sales / Internal procedures
+  if(q.includes('kopen') || q.includes('klant wil tv') || q.includes('verkopen') || q.includes('offerte')) return `Als een klant direct wil kopen, gebruik dan het VMS of Magento systeem om de order aan te maken. Heb je specifiek aankoopadvies nodig voor de klant? Gebruik onze interne 'helloTV Academy' kennisbank.`;
+  
+  // Repairs general
+  if(q.includes('reparatie') || q.includes('service') || q.includes('aanmelden') || q.includes('defect')) return `Meld nieuwe reparaties altijd aan via het formulier "Nieuwe Aanmelding" in dit dashboard. Zorg dat je de verplichte troubleshoot-check doet om "No Defect Found" boetes te voorkomen.`;
+  
+  // Fallback
+  if(/(hoi|hallo|hey|help)/.test(q)) return `Hoi! Ik help je met orderstatussen, reparatie-instructies, ETA, en voorraad (bijv. order 251195109 of "voorraad Samsung").`;
+  return `Ik kon daar geen order bij vinden. Probeer een ordernummer (8 cijfers) of stel een vraag over een procedure.`;
 }
 
 function botReplyExtern(qRaw){
   const q=qRaw.toLowerCase().trim();
-  if(q.includes('tv gaat niet aan') || q.includes('kapot') || q.includes('defect') || q.includes('probleem') || q.includes('niet meer')) {
+  
+  // Service/Repair matching
+  if(q.includes('tv gaat niet aan') || q.includes('kapot') || q.includes('defect') || q.includes('probleem') || q.includes('niet meer') || q.includes('reparatie') || q.includes('service') || q.includes('garantie') || q.includes('stuk')) {
     setTimeout(() => {
       const box = document.getElementById('waContextBox');
-      if(box) box.innerHTML = `<strong>Ontvangen klacht (doorgeschakeld):</strong><br/>"${qRaw}"`;
+      if(box) box.innerHTML = `<strong>Ontvangen serviceverzoek (doorgeschakeld):</strong><br/>"${qRaw}"`;
     }, 900);
-    return `Wat vervelend om te horen! Dit klinkt als een technische storing. Ik ga je nu direct doorverbinden met onze centrale Service & Support afdeling.\n\n<em>Doorgeschakeld naar Service & Support... Jouw probleemomschrijving is meegestuurd.</em>`;
+    return `Wat vervelend om te horen! Dit klinkt als een vraag voor onze specialisten. Ik ga je nu direct doorverbinden met de centrale Service & Support afdeling van helloTV.\n\n<em>Doorgeschakeld naar Service & Support... Jouw bericht is meegestuurd.</em>`;
   }
-  if(q.includes('support') || q.includes('doorverwezen')) {
-    setTimeout(() => {
-      const box = document.getElementById('waContextBox');
-      if(box) box.innerHTML = `<strong>Klant vraagt om support:</strong><br/>"${qRaw}"`;
-    }, 900);
-    return `Ik verbind je direct door naar de centrale Service & Support afdeling! \n\n<em>Doorgeschakeld...</em>`;
+  
+  // Status/Order tracking
+  if(q.includes('status') || q.includes('zending') || q.includes('waar is') || q.includes('bezorg') || q.includes('volg')) {
+    return `Wil je de status van je zending of reparatie weten? Je kunt je bestelling live volgen via ons klantportaal! Vul daarvoor je ordernummer of serienummer in bij "Volg je reparatie", of geef je ordernummer (8 cijfers) hier even door.`;
   }
-  return `Bedankt voor je bericht aan helloTV. Voor technische vragen kan ik je doorverbinden met Service & Support. Zal ik dat doen?`;
+  
+  // Buying/Advice
+  if(q.includes('kopen') || q.includes('advies') || q.includes('welke tv') || q.includes('prijs') || q.includes('aanbieding')) {
+    return `Wat leuk dat je op zoek bent naar een nieuwe TV of audio! Onze experts in dit filiaal helpen je heel graag met persoonlijk advies. Wil je dat ik direct een afspraak voor je inplan, of kom je spontaan langs?`;
+  }
+  
+  // Fallback
+  return `Bedankt voor je bericht aan helloTV. Voor technische vragen kan ik je doorverbinden met Service & Support, of onze filiaalmedewerkers kunnen je adviseren bij een aankoop. Waarmee kan ik je helpen?`;
 }
 
 /* ---- ODM ---- */
@@ -808,6 +836,21 @@ function initWa(){
       const box = $('#waContextBox');
       if(box) navigator.clipboard.writeText(box.innerText);
       toast(copyBtn.dataset.toast);
+    };
+  }
+  
+  // Store selector logic
+  const storeSel = $('#waStoreSelect');
+  const storeNm = $('#waStoreName');
+  const waBodyExtern = $('#waBodyExtern');
+  if(storeSel && storeNm && waBodyExtern) {
+    storeSel.onchange = () => {
+      const s = storeSel.value;
+      storeNm.innerText = \`helloTV \${s} (Filiaal)\`;
+      const t=new Date();const tm=\`\${String(t.getHours()).padStart(2,'0')}:\${String(t.getMinutes()).padStart(2,'0')}\`;
+      waBodyExtern.innerHTML = bubble('in', \`Welkom bij helloTV \${s}! Hoe kunnen we je helpen?\`, tm);
+      const box = $('#waContextBox');
+      if(box) box.innerHTML = '<em>Nog geen klachtomschrijving ontvangen via doorschakeling...</em>';
     };
   }
 }
