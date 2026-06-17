@@ -396,9 +396,49 @@ function viewAanmelden(){
           </select>
         </div>
       </div>
-      <div class="field"><label>Serienummer <span class="demo-flag">${ic('check')} auto-herkenning</span></label><input class="vbox" style="width:100%;color:var(--ink);font-family:inherit;border:none;background:var(--field)" placeholder="Scan of voer in…"/></div>
-      <div class="field"><label>Omschrijving klacht — geen "nakijken" of "defect"</label><textarea class="vbox area" style="width:100%;color:var(--ink);font-family:inherit;border:none;background:var(--field);resize:vertical" placeholder="Beschrijf het probleem zo concreet mogelijk…"></textarea></div>
-      <button class="btn btn-yellow" data-toast="Aanmelding doorgezet. Klant ontvangt automatisch een trackinglink." style="width:100%;justify-content:center;margin-top:6px">${ic('send')} Aanmelding doorzetten naar merk / CE-Repair</button>
+      <div class="field"><label>Serienummer <span class="demo-flag">${ic('check')} auto-herkenning</span></label><input id="snInput" class="vbox" style="width:100%;color:var(--ink);font-family:inherit;border:none;background:var(--field)" placeholder="Scan of voer in…"/></div>
+      <div class="field"><label>Omschrijving klacht — geen "nakijken" of "defect"</label><textarea id="klachtInput" class="vbox area" style="width:100%;color:var(--ink);font-family:inherit;border:none;background:var(--field);resize:vertical" placeholder="Beschrijf het probleem zo concreet mogelijk…"></textarea></div>
+      <button class="btn btn-yellow" id="btnOpenCeRepair" style="width:100%;justify-content:center;margin-top:6px">${ic('send')} Aanmelding doorzetten naar merk / CE-Repair</button>
+
+      <!-- CE-Repair B2B Connect Modal -->
+      <div id="ceRepairModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
+        <div class="card pad" style="width:500px;max-width:90vw;max-height:90vh;overflow-y:auto;background:#fff;border-top:6px solid #e1251b">
+          <div class="between" style="margin-bottom:12px">
+            <h2 style="font-family:var(--font-d);font-size:18px;font-weight:800;color:#e1251b">CE ICT Services API Koppeling</h2>
+            <button id="ceRepairClose" style="background:none;border:none;cursor:pointer;color:var(--ink);font-size:24px;line-height:1">&times;</button>
+          </div>
+          <p class="muted" style="font-size:13px;margin-bottom:16px">API Simulatie (XML/JSON): De ingevulde data uit het helloTV systeem wordt direct overgezet naar de beveiligde CE-Repair API.</p>
+          
+          <div style="background:var(--field);padding:12px;border-radius:8px;border:1px solid var(--line);margin-bottom:16px">
+            <div style="font-size:12px;color:var(--ink-4);margin-bottom:4px">Overgedragen Productdata:</div>
+            <div style="font-size:14px;font-family:var(--font-d)"><strong id="cerMerkType">-</strong></div>
+            <div style="font-size:13px;color:var(--ink);margin-top:2px">S/N: <strong id="cerSerial">-</strong></div>
+          </div>
+
+          <div class="field"><label>Garantie & Factuur (Simulatie)</label>
+            <div style="display:flex;gap:8px">
+              <span class="pill p-green"><span class="dot"></span>Aankoopfactuur digitaal gekoppeld</span>
+              <span class="pill p-blue"><span class="dot"></span>Binnen garantie (2j)</span>
+            </div>
+          </div>
+          
+          <div class="field"><label>Reparatie Type</label>
+            <select style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);font-family:inherit;font-size:14px">
+              <option>Carry-in (Klant levert in bij filiaal)</option>
+              <option>In-Home (CE-Repair monteur op adres klant)</option>
+              <option>Pick-up (Ophalen via transporteur)</option>
+            </select>
+          </div>
+
+          <div id="cerSuccessBox" style="display:none;margin-top:16px;padding:12px;background:#e4f7ea;color:#0f7a37;border-radius:8px;border:1px solid #c2ecd0;text-align:center">
+            <div style="font-family:var(--font-d);font-weight:700;font-size:15px;margin-bottom:4px">Succesvol gekoppeld!</div>
+            <div style="font-size:13px">De opdracht is geaccepteerd door CE-Repair.</div>
+            <div style="font-size:14px;margin-top:6px">RMA Nummer: <strong style="font-family:var(--font-m)">CER-2026-883</strong></div>
+          </div>
+
+          <button id="cerSubmitBtn" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;background:#e1251b;color:#fff">${ic('send')} Bevestig & Push via CE-Repair API</button>
+        </div>
+      </div>
     </div>
     <div class="stack" style="gap:18px">
       <div class="card pad" style="background:var(--ink);color:#fff">
@@ -874,20 +914,62 @@ function initPortal(){
 
 function initAanmelden(){
   const m = $('#merkSelect'), t = $('#typeSelect');
-  if(!m || !t) return;
-  m.onchange = () => {
-    const val = m.value;
-    if(val && BRANDS_MODELS[val]) {
-      t.innerHTML = '<option value="">Selecteer type…</option>' + BRANDS_MODELS[val].map(x=>`<option value="${x}">${x}</option>`).join('') + '<option value="Anders">Anders...</option>';
-      t.disabled = false;
-    } else if (val === 'Anders') {
-      t.innerHTML = '<option value="Anders">Anders...</option>';
-      t.disabled = false;
-    } else {
-      t.innerHTML = '<option value="">Kies eerst een merk…</option>';
-      t.disabled = true;
+  if(m && t) {
+    m.onchange = () => {
+      const val = m.value;
+      if(val && BRANDS_MODELS[val]) {
+        t.innerHTML = '<option value="">Selecteer type…</option>' + BRANDS_MODELS[val].map(x=>`<option value="${x}">${x}</option>`).join('') + '<option value="Anders">Anders...</option>';
+        t.disabled = false;
+      } else if (val === 'Anders') {
+        t.innerHTML = '<option value="Anders">Anders...</option>';
+        t.disabled = false;
+      } else {
+        t.innerHTML = '<option value="">Kies eerst een merk…</option>';
+        t.disabled = true;
+      }
+    };
+  }
+
+  // CE Repair Modal Logic
+  const btnOpen = $('#btnOpenCeRepair');
+  const modal = $('#ceRepairModal');
+  const btnClose = $('#ceRepairClose');
+  const btnSubmit = $('#cerSubmitBtn');
+  const successBox = $('#cerSuccessBox');
+  const snInput = $('#snInput');
+  
+  if(btnOpen && modal) {
+    btnOpen.onclick = () => {
+      const merkVal = m && m.value ? m.value : 'Onbekend merk';
+      const typeVal = t && t.value ? t.value : 'Onbekend type';
+      const snVal = snInput ? snInput.value : '';
+      
+      const merkTypeEl = $('#cerMerkType');
+      const serialEl = $('#cerSerial');
+      if(merkTypeEl) merkTypeEl.innerText = `${merkVal} ${typeVal}`;
+      if(serialEl) serialEl.innerText = snVal || 'Niet ingevuld (waarschuwing)';
+      
+      if(successBox) successBox.style.display = 'none';
+      if(btnSubmit) {
+        btnSubmit.style.display = 'flex';
+        btnSubmit.innerHTML = `${ic('send')} Bevestig & Push via CE-Repair API`;
+      }
+      modal.style.display = 'flex';
+    };
+    
+    if(btnClose) btnClose.onclick = () => modal.style.display = 'none';
+    
+    if(btnSubmit) {
+      btnSubmit.onclick = () => {
+        btnSubmit.innerHTML = '<em style="color:#fff">Versturen via API...</em>';
+        setTimeout(() => {
+          btnSubmit.style.display = 'none';
+          if(successBox) successBox.style.display = 'block';
+          toast('CE-Repair API push succesvol afgerond.');
+        }, 1200);
+      };
     }
-  };
+  }
 }
 
 function initOdm(){
