@@ -484,13 +484,66 @@ function viewKlantform(){
     <div class="field" style="margin-bottom:18px"><label>Wat is het probleem? *</label><textarea class="vbox area" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line);resize:vertical" placeholder="Omschrijf de klacht of schade..."></textarea></div>
 
     <div class="divider"></div>
-    <div class="eyebrow" style="color:var(--yellow-deep);margin-bottom:12px">Stap 3: Bestanden Uploaden (Terabytes ondersteund via Auto-Compressie)</div>
+    <div class="eyebrow" style="color:var(--yellow-deep);margin-bottom:12px">Stap 3: Bestanden Uploaden</div>
     
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
       ${uploadBlock('Factuur / Aankoopbewijs', 'factuurUp')}
       ${uploadBlock('Foto Serienummer (Achterkant TV)', 'serieUp')}
-      ${uploadBlock('Foto Schade Doos', 'doosUp')}
-      ${uploadBlock('Foto / Video Schade TV', 'tvUp')}
+    </div>
+
+    <!-- NIEUW DOOS INSTRUCTIE BLOK -->
+    <div style="background:var(--field); padding:16px; border-radius:12px; font-size:14px; color:var(--ink); margin-bottom:18px; border-left:4px solid var(--yellow)">
+      <strong style="font-family:var(--font-d);font-size:16px;">Instructies voor de doosfoto's</strong><br/>
+      Om je aanmelding snel goed te keuren, hebben we duidelijke foto's nodig van <strong style="text-decoration:underline;">alle kanten</strong> van de doos. 
+      Volg de pijltjes in het onderstaande voorbeeld:<br/>
+      <ul style="margin-top:8px; padding-left:20px; color:var(--ink-3)">
+        <li><strong>Boven- & Onderkant:</strong> Focus op de sluiting en tape.</li>
+        <li><strong>Zijkanten (Links/Rechts):</strong> Let goed op de handvatten en eventuele deuken.</li>
+        <li><strong>Voor- & Achterkant:</strong> De volledige grote vlakken van de doos.</li>
+        <li><strong>Binnenkant:</strong> Open de doos en fotografeer het piepschuim/beschermingsmateriaal.</li>
+      </ul>
+      
+      <div style="position:relative; width:100%; max-width:500px; margin: 16px auto 0; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff;">
+        <img src="samsung_box.png" style="width:100%; display:block;" alt="Samsung OLED TV Doos"/>
+        
+        <!-- Bovenkant -->
+        <div style="position:absolute; top:5%; left:50%; transform:translateX(-50%); text-align:center;">
+          <div style="background:var(--yellow); color:var(--ink); font-weight:800; font-size:11px; padding:2px 6px; border-radius:4px; margin-bottom:2px; box-shadow:0 2px 4px rgba(0,0,0,0.2)">BOVENKANT</div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5))"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+
+        <!-- Voorkant -->
+        <div style="position:absolute; top:45%; left:25%; text-align:center;">
+          <div style="background:var(--yellow); color:var(--ink); font-weight:800; font-size:11px; padding:2px 6px; border-radius:4px; margin-bottom:2px; box-shadow:0 2px 4px rgba(0,0,0,0.2)">VOORKANT</div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5))"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+
+        <!-- Zijkant (Rechts) -->
+        <div style="position:absolute; top:45%; right:10%; text-align:center;">
+          <div style="background:var(--yellow); color:var(--ink); font-weight:800; font-size:11px; padding:2px 6px; border-radius:4px; margin-bottom:2px; box-shadow:0 2px 4px rgba(0,0,0,0.2)">ZIJKANT</div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5))"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+
+        <!-- Binnenkant -->
+        <div style="position:absolute; top:12%; right:12%; text-align:center;">
+          <div style="background:var(--yellow); color:var(--ink); font-weight:800; font-size:11px; padding:2px 6px; border-radius:4px; margin-bottom:2px; box-shadow:0 2px 4px rgba(0,0,0,0.2)">BINNENKANT</div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5)); transform:rotate(-45deg)"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin-bottom:18px">
+      ${uploadBlock('Upload Foto\'s Doos (Boven, Onder, Links, Rechts, Voor, Achter, Binnen)', 'doosUp')}
+    </div>
+
+    <!-- NIEUW TV SCHADE BLOK -->
+    <div style="background:var(--field); padding:16px; border-radius:12px; font-size:14px; color:var(--ink); margin-bottom:18px; border-left:4px solid var(--violet)">
+      <strong style="font-family:var(--font-d);font-size:16px;">Foto's of Video van de TV zelf</strong><br/>
+      Zet de TV aan (indien mogelijk) en maak een duidelijke foto/video van het scherm en de schade. <strong style="color:var(--violet)">Maximaal 5 bestanden.</strong>
+    </div>
+
+    <div style="margin-bottom:18px">
+      ${uploadBlock('Upload Schade TV (Max 5 stuks)', 'tvUp')}
     </div>
 
     <button id="klantFormSubmit" class="btn btn-yellow" style="width:100%;justify-content:center;padding:12px;font-size:15px">${ic('send')} Aanmelding Verzenden & Pushen naar Dashboard</button>
