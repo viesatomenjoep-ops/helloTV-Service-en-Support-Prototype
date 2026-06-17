@@ -37,6 +37,23 @@ const STATUS = {
 const pill = s => `<span class="pill ${STATUS[s].pill}"><span class="dot"></span>${STATUS[s].label}</span>`;
 
 /* ---------- DEMO DATA (geïnspireerd op de reparatiebon) ---------- */
+const BRANDS_MODELS = {
+  'Samsung': ['OLED S95C', 'OLED S90C', 'QN90C Neo QLED', 'The Frame', 'Q-Symphony Soundbar', 'HW-Q990C'],
+  'LG': ['OLED G4', 'OLED C4', 'OLED B4', 'QNED85', 'S95QR Soundbar', 'XBOOM'],
+  'Sony': ['Bravia XR A95L', 'Bravia XR A80L', 'Bravia X90L', 'HT-A7000 Soundbar', 'WH-1000XM5'],
+  'Philips': ['OLED+908', 'OLED808', 'The One (PUS8808)', 'Fidelio B97', 'Evnia Monitor'],
+  'Panasonic': ['MZ2000 OLED', 'MZ1500 OLED', 'MX950 LED', 'SC-HTB490 Soundbar'],
+  'TCL': ['C845 Mini-LED', 'C745 QLED', 'P745', 'Ray-Danz Soundbar'],
+  'Hisense': ['UXKQ Mini-LED', 'U8KQ', 'A6K', 'HS214 Soundbar'],
+  'Sonos': ['Arc', 'Beam (Gen 2)', 'Ray', 'Sub (Gen 3)', 'Sub Mini', 'Era 300', 'Era 100', 'Move 2', 'Roam'],
+  'Bose': ['Smart Soundbar 900', 'Smart Soundbar 600', 'Bass Module 700', 'QuietComfort Ultra', 'Portable Smart Speaker'],
+  'JBL': ['Bar 1300X', 'Bar 1000', 'Bar 800', 'PartyBox 710', 'Flip 6', 'Charge 5'],
+  'Denon': ['AVR-X3800H', 'AVR-X2800H', 'Home 150', 'Home 350', 'Home Sound Bar 550'],
+  'Yamaha': ['RX-V6A', 'RX-A2A', 'MusicCast BAR 400', 'SR-B20A'],
+  'Marantz': ['CINEMA 40', 'CINEMA 50', 'STEREO 70s', 'MODEL 40n'],
+  'Harman Kardon': ['Citation MultiBeam 1100', 'Citation Sub', 'Onyx Studio 8', 'Aura Studio 3']
+};
+
 const ORDERS = [
   {
     id:'251195109', merk:'Sonos', type:'Move 2 — wit', serie:'251195109',
@@ -366,11 +383,21 @@ function viewAanmelden(){
       <div class="divider"></div>
       <div class="eyebrow">Stap 2 — productgegevens</div>
       <div class="two" style="margin-top:12px">
-        <div class="field"><label>Merk</label><div class="vbox" style="color:var(--ink-4)">Selecteer merk…</div></div>
-        <div class="field"><label>Type</label><div class="vbox" style="color:var(--ink-4)">Bijv. Move 2</div></div>
+        <div class="field"><label>Merk</label>
+          <select id="merkSelect" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--ink);font-family:inherit;font-size:14px">
+            <option value="">Selecteer merk…</option>
+            ${Object.keys(BRANDS_MODELS).sort().map(m=>`<option value="${m}">${m}</option>`).join('')}
+            <option value="Anders">Anders...</option>
+          </select>
+        </div>
+        <div class="field"><label>Type</label>
+          <select id="typeSelect" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--ink);font-family:inherit;font-size:14px" disabled>
+            <option value="">Kies eerst een merk…</option>
+          </select>
+        </div>
       </div>
-      <div class="field"><label>Serienummer <span class="demo-flag">${ic('check')} auto-herkenning</span></label><div class="vbox" style="color:var(--ink-4)">Scan of voer in…</div></div>
-      <div class="field"><label>Omschrijving klacht — geen "nakijken" of "defect"</label><div class="vbox area" style="color:var(--ink-4)">Beschrijf het probleem zo concreet mogelijk…</div></div>
+      <div class="field"><label>Serienummer <span class="demo-flag">${ic('check')} auto-herkenning</span></label><input class="vbox" style="width:100%;color:var(--ink);font-family:inherit;border:none;background:var(--field)" placeholder="Scan of voer in…"/></div>
+      <div class="field"><label>Omschrijving klacht — geen "nakijken" of "defect"</label><textarea class="vbox area" style="width:100%;color:var(--ink);font-family:inherit;border:none;background:var(--field);resize:vertical" placeholder="Beschrijf het probleem zo concreet mogelijk…"></textarea></div>
       <button class="btn btn-yellow" data-toast="Aanmelding doorgezet. Klant ontvangt automatisch een trackinglink." style="width:100%;justify-content:center;margin-top:6px">${ic('send')} Aanmelding doorzetten naar merk / CE-Repair</button>
     </div>
     <div class="stack" style="gap:18px">
@@ -568,8 +595,20 @@ function viewOdm(){
       <div class="card pad" style="padding:14px 20px"><div class="eyebrow">Doorgestuurd</div><div style="font-family:var(--font-d);font-size:26px;font-weight:700">1</div></div>
       <div class="card pad" style="padding:14px 20px"><div class="eyebrow">Sync-status</div><div class="pill p-green" style="margin-top:6px"><span class="dot"></span>Live · geen Excel</div></div>
     </div>
-    <button class="btn btn-yellow" data-toast="Nieuw open-doosmodel toegevoegd aan de lijst.">${ic('box')} Model toevoegen</button>
+    <button class="btn btn-yellow" id="odmAddBtn">${ic('box')} Model toevoegen</button>
   </div>
+
+  <div class="card pad" id="odmAddForm" style="display:none;margin-bottom:18px;border-left:4px solid var(--yellow)">
+    <div class="eyebrow">Nieuw Open Doos Model Aanmelden</div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+      <div class="field"><label>Merk</label><select style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--line);font-family:inherit"><option>Samsung</option><option>LG</option><option>Sonos</option><option>Bose</option></select></div>
+      <div class="field"><label>Type</label><input placeholder="Bijv. QN90C" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--line);font-family:inherit"/></div>
+      <div class="field"><label>Serienummer</label><input placeholder="Scan of typ..." style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--line);font-family:inherit"/></div>
+      <div class="field"><label>Locatie</label><select style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--line);font-family:inherit"><option>Doetinchem</option><option>Breda</option><option>Winterswijk</option></select></div>
+    </div>
+    <button class="btn btn-primary" id="odmSaveBtn" data-toast="Model succesvol toegevoegd aan de ODM-lijst." style="margin-top:8px">Opslaan & toevoegen</button>
+  </div>
+
   <div class="card">
     <div style="padding:16px 6px 0">
       <table class="tbl">
@@ -632,15 +671,60 @@ function viewPortaal(){
   const o=ORDERS.find(x=>x.id==='251204417');
   return `
   <div class="portal">
-    <div class="track-hero">
-      <span class="logo">hello<span class="tvwrap"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#F8C100" stroke-width="9"/><path d="M30 78 L20 96 L42 84 Z" fill="#F8C100"/></svg><span class="tv">tv</span></span></span>
-      <h2 style="font-family:var(--font-d);font-size:24px;font-weight:700;margin-bottom:6px">Volg je reparatie</h2>
-      <p style="color:#a1a1aa;font-size:14px;margin-bottom:20px">Altijd up-to-date. Geen "wanneer hoor ik wat" meer.</p>
-      <div class="track-search">
-        <input id="trackInput" placeholder="Ordernummer of serienummer…" value="251204417" />
-        <button class="btn btn-yellow" id="trackBtn">${ic('arrow')} Volg</button>
+    <div class="track-hero" style="padding:10px 16px;background:var(--ink);color:#fff;border-radius:8px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <h2 style="font-family:var(--font-d);font-size:15px;font-weight:700">tv volg je reparatie</h2>
+        <p style="color:#a1a1aa;font-size:12px;margin-top:2px">Altijd up-to-date. Geen "wanneer hoor ik wat" meer.</p>
+      </div>
+      <div class="track-search" style="margin:0;display:flex;gap:8px">
+        <input id="trackInput" placeholder="Ordernummer..." value="251204417" style="padding:6px 10px;font-size:13px;border-radius:6px;border:none;color:var(--ink)"/>
+        <button class="btn btn-yellow" id="trackBtn" style="padding:6px 12px;font-size:13px">${ic('arrow')} Volg</button>
       </div>
     </div>
+
+    <div class="card pad" style="margin-bottom:18px;background:var(--ink);text-align:center;padding:24px">
+      <h2 style="font-family:var(--font-d);font-size:20px;font-weight:800;color:var(--yellow);margin-bottom:24px">Jouw Reparatie in 3 Simpele Stappen</h2>
+      <div style="display:flex;justify-content:center;align-items:flex-end;gap:24px;flex-wrap:wrap">
+        
+        <!-- Bubble 1: Small -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+          <div style="position:relative;width:90px;height:90px">
+            <svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible">
+              <path d="M 50,5 A 45,45 0 1,1 18,81 L 5,105 L 32,89 A 45,45 0 0,1 50,5 Z" fill="none" stroke="var(--yellow)" stroke-width="5" stroke-linejoin="round"/>
+            </svg>
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:grid;place-items:center;padding:10%">
+              <span style="font-family:var(--font-d);font-weight:800;font-size:14px;color:#fff;line-height:1.2">1.<br/>MELD<br/>AAN</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bubble 2: Medium -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+          <div style="position:relative;width:110px;height:110px">
+            <svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible">
+              <path d="M 50,5 A 45,45 0 1,1 18,81 L 5,105 L 32,89 A 45,45 0 0,1 50,5 Z" fill="none" stroke="var(--yellow)" stroke-width="5" stroke-linejoin="round"/>
+            </svg>
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:grid;place-items:center;padding:10%">
+              <span style="font-family:var(--font-d);font-weight:800;font-size:16px;color:#fff;line-height:1.2">2.<br/>VOLG<br/>LIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bubble 3: Large -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+          <div style="position:relative;width:140px;height:140px">
+            <svg viewBox="0 0 100 100" style="width:100%;height:100%;overflow:visible">
+              <path d="M 50,5 A 45,45 0 1,1 18,81 L 5,105 L 32,89 A 45,45 0 0,1 50,5 Z" fill="none" stroke="var(--yellow)" stroke-width="5" stroke-linejoin="round"/>
+            </svg>
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:grid;place-items:center;padding:10%">
+              <span style="font-family:var(--font-d);font-weight:800;font-size:20px;color:#fff;line-height:1.1">3.<br/>SNEL<br/>WEER<br/>KIJKEN!</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <div id="trackResult" style="margin-top:18px">${portalCard(o)}</div>
   </div>`;
 }
@@ -680,6 +764,8 @@ function navigate(view,arg){
   content.scrollTo&&content.scrollTo(0,0); window.scrollTo(0,0);
   if(view==='whatsapp') initWa();
   if(view==='portaal') initPortal();
+  if(view==='aanmelden') initAanmelden();
+  if(view==='odm') initOdm();
   bindDynamic();
   // animate bars/progress
   requestAnimationFrame(()=>{});
@@ -739,7 +825,43 @@ function setupWaBot(mode, replyFunc){
 function initPortal(){
   const btn=$('#trackBtn'),input=$('#trackInput');
   function look(){const q=input.value.toLowerCase().trim();const o=ORDERS.find(x=>x.id===q||x.serie.toLowerCase()===q);$('#trackResult').innerHTML=portalCard(o);$('#trackResult').querySelectorAll('[data-toast]').forEach(b=>b.onclick=()=>toast(b.dataset.toast));}
-  btn.onclick=look;input.onkeydown=e=>{if(e.key==='Enter')look();};
+  if(btn) btn.onclick=look;
+  if(input) input.onkeydown=e=>{if(e.key==='Enter')look();};
+}
+
+function initAanmelden(){
+  const m = $('#merkSelect'), t = $('#typeSelect');
+  if(!m || !t) return;
+  m.onchange = () => {
+    const val = m.value;
+    if(val && BRANDS_MODELS[val]) {
+      t.innerHTML = '<option value="">Selecteer type…</option>' + BRANDS_MODELS[val].map(x=>`<option value="${x}">${x}</option>`).join('') + '<option value="Anders">Anders...</option>';
+      t.disabled = false;
+    } else if (val === 'Anders') {
+      t.innerHTML = '<option value="Anders">Anders...</option>';
+      t.disabled = false;
+    } else {
+      t.innerHTML = '<option value="">Kies eerst een merk…</option>';
+      t.disabled = true;
+    }
+  };
+}
+
+function initOdm(){
+  const btn = $('#odmAddBtn');
+  const form = $('#odmAddForm');
+  if(btn && form) {
+    btn.onclick = () => {
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    };
+  }
+  const saveBtn = $('#odmSaveBtn');
+  if(saveBtn) {
+    saveBtn.onclick = () => {
+      form.style.display = 'none';
+      toast(saveBtn.dataset.toast);
+    };
+  }
 }
 
 /* toast */
