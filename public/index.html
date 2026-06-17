@@ -61,14 +61,13 @@
   ::-webkit-scrollbar-track{background:transparent}
 
   /* ============ LOGO ============ */
-  .logo{display:inline-flex;align-items:center;font-family:var(--font-d);font-weight:700;
-    letter-spacing:-.02em;line-height:1;color:var(--ink);user-select:none}
-  .logo .hello{font-weight:700}
-  .logo .tvwrap{position:relative;display:inline-flex;align-items:center;justify-content:center;
-    margin-left:.34em}
-  .logo .tvwrap svg{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);
-    width:1.92em;height:1.92em;overflow:visible}
-  .logo .tv{position:relative;z-index:1;font-weight:700;padding:0 .04em}
+  .logo-img {
+    height: 28px; /* wat kleiner maken */
+    width: auto;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast; /* scherp maken */
+    image-rendering: crisp-edges;
+  }
 
   /* ============ APP SHELL ============ */
   .app{display:flex;min-height:100vh}
@@ -77,8 +76,6 @@
     display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:40;
   }
   .sb-brand{padding:22px 22px 18px;display:flex;align-items:center;gap:10px}
-  .sb-brand .logo{font-size:25px;color:#fff}
-  .sb-brand .logo .tv{color:#fff}
   .sb-tag{margin:0 22px 18px;font-family:var(--font-d);font-size:11px;font-weight:600;
     letter-spacing:.14em;text-transform:uppercase;color:var(--yellow);
     border-top:1px solid rgba(255,255,255,.09);padding-top:16px}
@@ -252,8 +249,7 @@
   .track-hero{background:var(--ink);color:#fff;border-radius:var(--r-xl);padding:32px;position:relative;overflow:hidden}
   .track-hero::after{content:"";position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;
     border:30px solid var(--yellow);opacity:.14}
-  .track-hero .logo{color:#fff;font-size:26px;margin-bottom:20px}
-  .track-hero .logo .tv{color:#fff}
+  .track-hero .logo-img{margin-bottom:20px; filter: brightness(0) invert(1);} /* wit logo op donkere achtergrond */
   .track-search{display:flex;gap:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
     border-radius:14px;padding:7px 7px 7px 16px;max-width:440px}
   .track-search input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:14px}
@@ -327,7 +323,7 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-brand">
-      <span class="logo" aria-label="helloTV">hello<span class="tvwrap"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#F8C100" stroke-width="9"/><path d="M30 78 L20 96 L42 84 Z" fill="#F8C100"/></svg><span class="tv">tv</span></span></span>
+      <img src="Hello-tv-logo-CMYK-ZwG_google-display.png.webp" alt="helloTV" class="logo-img" style="filter: brightness(0) invert(1);" />
     </div>
     <div class="sb-tag">Service &amp; Support Dashboard Pro</div>
     <nav class="sb-nav" id="nav">

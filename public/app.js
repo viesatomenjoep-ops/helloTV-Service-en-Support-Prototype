@@ -442,24 +442,28 @@ function qrSvg(){
 /* ---- WHATSAPP / AI ASSISTANT ---- */
 function viewWhatsapp(){
   return `
-  <div class="grid" style="grid-template-columns:1fr 1fr;align-items:start">
+  <div class="chips" style="margin-bottom:18px" id="waTabs">
+    <button class="chip on" data-watab="intern">Interne AI (Medewerkers)</button>
+    <button class="chip" data-watab="extern">Externe Bot (16 Filialen)</button>
+  </div>
+
+  <div id="tab-intern" class="grid" style="grid-template-columns:1fr 1fr;align-items:start">
     <div>
       <div class="wa">
         <div class="wa-head">
           <div class="ava">${ic('chat')}</div>
           <div><div class="nm">helloTV Service-bot</div><div class="st">online · gekoppeld aan database</div></div>
         </div>
-        <div class="wa-body" id="waBody">
+        <div class="wa-body" id="waBodyIntern">
           ${bubble('in','Hoi! 👋 Stuur me een <strong>ordernummer</strong> of <strong>serienummer</strong> en ik geef je direct de actuele status.','09:01')}
         </div>
-        <div class="wa-sugg" id="waSugg">
+        <div class="wa-sugg" id="waSuggIntern">
           <button data-q="251195109">251195109</button>
-          <button data-q="251203991">Status 251203991</button>
           <button data-q="voorraad LG OLED">Voorraad LG OLED?</button>
         </div>
         <div class="wa-input">
-          <input id="waInput" placeholder="Typ een ordernummer…" />
-          <button id="waSend">${ic('send')}</button>
+          <input id="waInputIntern" placeholder="Typ een ordernummer…" />
+          <button id="waSendIntern">${ic('send')}</button>
         </div>
       </div>
     </div>
@@ -467,17 +471,7 @@ function viewWhatsapp(){
       <div class="card pad">
         <div class="eyebrow">Voor wie</div>
         <div style="font-family:var(--font-d);font-size:17px;font-weight:700;margin-top:4px">Winkel- en supportmedewerkers</div>
-        <p class="muted" style="font-size:13.5px;margin-top:8px">Geen klant meer in de wacht en geen memo's naar Doetinchem. De medewerker appt een ordernummer en krijgt direct de status — opgehaald uit de centrale database.</p>
-      </div>
-      <div class="card pad">
-        <div class="eyebrow">Begrijpt onder andere</div>
-        <div class="chips" style="margin-top:12px">
-          <span class="chip" style="cursor:default">Orderstatus</span>
-          <span class="chip" style="cursor:default">ETA &amp; ETA-wijziging</span>
-          <span class="chip" style="cursor:default">Voorraad per filiaal</span>
-          <span class="chip" style="cursor:default">Garantie &amp; route</span>
-          <span class="chip" style="cursor:default">ODM-status</span>
-        </div>
+        <p class="muted" style="font-size:13.5px;margin-top:8px">Geen klant meer in de wacht en geen memo's naar Doetinchem. De medewerker appt een ordernummer en krijgt direct de status.</p>
       </div>
       <div class="card pad" style="background:var(--violet-soft);border-color:#ddd3fb">
         <div style="display:flex;gap:10px;align-items:flex-start">
@@ -486,11 +480,44 @@ function viewWhatsapp(){
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="tab-extern" class="grid" style="grid-template-columns:1fr 1fr;align-items:start;display:none">
+    <div>
+      <div class="wa">
+        <div class="wa-head" style="background:#0f7a37">
+          <div class="ava" style="background:#fff">${ic('chat')}</div>
+          <div><div class="nm">helloTV Doetinchem (Filiaal)</div><div class="st" style="color:#e4f7ea">Klantenservice Bot</div></div>
+        </div>
+        <div class="wa-body" id="waBodyExtern">
+          ${bubble('in','Welkom bij helloTV Doetinchem! Hoe kunnen we je helpen?','10:00')}
+        </div>
+        <div class="wa-sugg" id="waSuggExtern">
+          <button data-q="Mijn tv gaat niet meer aan">Tv gaat niet aan</button>
+          <button data-q="Ik wil doorverwezen worden naar support">Doorverwijzen naar support</button>
+        </div>
+        <div class="wa-input">
+          <input id="waInputExtern" placeholder="Typ je bericht als klant…" />
+          <button id="waSendExtern">${ic('send')}</button>
+        </div>
+      </div>
+    </div>
+    <div class="stack" style="gap:18px">
+      <div class="card pad">
+        <div class="eyebrow">Doorschakeling naar Support</div>
+        <p class="muted" style="font-size:13.5px;margin-top:8px">Wanneer de lokale filiaalbot een reparatie-vraag detecteert, schakelt deze automatisch door. Het hele klantverhaal kan direct gekopieerd worden naar het nieuwe ordemanagementsysteem (klaar voor API in oktober).</p>
+        <div style="margin-top:12px;padding:12px;background:var(--field);border-radius:8px;font-size:13px;border:1px solid var(--line-2)" id="waContextBox">
+          <em>Nog geen klachtomschrijving ontvangen via doorschakeling...</em>
+        </div>
+        <button class="btn btn-ghost" style="margin-top:10px" id="waCopyBtn" data-toast="Tekst gekopieerd naar klembord!">${ic('doc')} Kopieer Omschrijving</button>
+        <button class="btn btn-primary" style="margin-top:10px;margin-left:10px" data-toast="API-status gekoppeld aan nieuw OMS">${ic('send')} Koppel Status API (OMS oktober)</button>
+      </div>
+    </div>
   </div>`;
 }
 function bubble(dir,html,tm){return `<div class="bub ${dir}">${html}<span class="tm">${tm}</span></div>`;}
 
-function botReply(qRaw){
+function botReplyIntern(qRaw){
   const q=qRaw.toLowerCase().trim();
   const o=ORDERS.find(x=>q.includes(x.id)||q.includes(x.serie.toLowerCase()));
   if(o){
@@ -507,9 +534,34 @@ function botReply(qRaw){
   return `Ik kon daar geen order bij vinden. Probeer een ordernummer (8 cijfers) of een serienummer. Voorbeeld: 251195109.`;
 }
 
+function botReplyExtern(qRaw){
+  const q=qRaw.toLowerCase().trim();
+  if(q.includes('tv gaat niet aan') || q.includes('kapot') || q.includes('defect') || q.includes('probleem') || q.includes('niet meer')) {
+    setTimeout(() => {
+      const box = document.getElementById('waContextBox');
+      if(box) box.innerHTML = `<strong>Ontvangen klacht (doorgeschakeld):</strong><br/>"${qRaw}"`;
+    }, 900);
+    return `Wat vervelend om te horen! Dit klinkt als een technische storing. Ik ga je nu direct doorverbinden met onze centrale Service & Support afdeling.\n\n<em>Doorgeschakeld naar Service & Support... Jouw probleemomschrijving is meegestuurd.</em>`;
+  }
+  if(q.includes('support') || q.includes('doorverwezen')) {
+    setTimeout(() => {
+      const box = document.getElementById('waContextBox');
+      if(box) box.innerHTML = `<strong>Klant vraagt om support:</strong><br/>"${qRaw}"`;
+    }, 900);
+    return `Ik verbind je direct door naar de centrale Service & Support afdeling! \n\n<em>Doorgeschakeld...</em>`;
+  }
+  return `Bedankt voor je bericht aan helloTV. Voor technische vragen kan ik je doorverbinden met Service & Support. Zal ik dat doen?`;
+}
+
 /* ---- ODM ---- */
 function viewOdm(){
   return `
+  <div class="card pad" style="margin-bottom:18px;background:var(--ink);color:#fff">
+    <img src="Hello-tv-logo-CMYK-ZwG_google-display.png.webp" class="logo-img" style="filter: brightness(0) invert(1);margin-bottom:10px" alt="helloTV"/>
+    <h2 style="font-family:var(--font-d);font-size:20px;font-weight:700">Open Doos Modellen Registratie</h2>
+    <p style="color:#a1a1aa;font-size:13.5px;margin-top:4px">Meld een toestel aan voor de ODM-voorraad of pas een bestaande status aan.</p>
+  </div>
+
   <div class="between" style="margin-bottom:18px">
     <div class="row">
       <div class="card pad" style="padding:14px 20px"><div class="eyebrow">Op voorraad</div><div style="font-family:var(--font-d);font-size:26px;font-weight:700">3</div></div>
@@ -648,12 +700,40 @@ function bindDynamic(){
 
 /* WhatsApp interactions */
 function initWa(){
-  const body=$('#waBody'),input=$('#waInput'),send=$('#waSend');
+  // Tabs
+  const tabs=$('#waTabs').querySelectorAll('button');
+  tabs.forEach(t=>{
+    t.onclick=()=>{
+      tabs.forEach(x=>x.classList.remove('on')); t.classList.add('on');
+      $('#tab-intern').style.display = t.dataset.watab==='intern'?'grid':'none';
+      $('#tab-extern').style.display = t.dataset.watab==='extern'?'grid':'none';
+    };
+  });
+
+  // Init Intern
+  setupWaBot('Intern', botReplyIntern);
+  // Init Extern
+  setupWaBot('Extern', botReplyExtern);
+
+  // Copy button
+  const copyBtn = $('#waCopyBtn');
+  if(copyBtn) {
+    copyBtn.onclick = () => {
+      const box = $('#waContextBox');
+      if(box) navigator.clipboard.writeText(box.innerText);
+      toast(copyBtn.dataset.toast);
+    };
+  }
+}
+
+function setupWaBot(mode, replyFunc){
+  const body=$('#waBody'+mode),input=$('#waInput'+mode),send=$('#waSend'+mode);
+  if(!body)return;
   function push(dir,html){const t=new Date();const tm=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;body.insertAdjacentHTML('beforeend',bubble(dir,html,tm));body.scrollTop=body.scrollHeight;}
-  function ask(q){if(!q.trim())return;push('out',q);setTimeout(()=>{push('in','<em style="color:#9a9aa2">aan het opzoeken…</em>');setTimeout(()=>{body.lastElementChild.remove();push('in',botReply(q));},650);},250);}
+  function ask(q){if(!q.trim())return;push('out',q);setTimeout(()=>{push('in','<em style="color:#9a9aa2">aan het typen…</em>');setTimeout(()=>{body.lastElementChild.remove();push('in',replyFunc(q));},800);},300);}
   send.onclick=()=>{ask(input.value);input.value='';};
   input.onkeydown=e=>{if(e.key==='Enter'){ask(input.value);input.value='';}};
-  $('#waSugg').querySelectorAll('button').forEach(b=>b.onclick=()=>ask(b.dataset.q));
+  $('#waSugg'+mode).querySelectorAll('button').forEach(b=>b.onclick=()=>ask(b.dataset.q));
 }
 /* Portal lookup */
 function initPortal(){
