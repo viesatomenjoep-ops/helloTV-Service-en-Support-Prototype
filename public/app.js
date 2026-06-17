@@ -180,6 +180,7 @@ const content = $('#content');
 const PAGE = {
   dashboard:{title:'Overzicht', sub:'Dinsdag 17 juni 2026 · realtime servicebeeld'},
   reparaties:{title:'Reparaties', sub:'Alle lopende en afgeronde service-orders'},
+  klantform:{title:'Klant Intake Formulier', sub:'Eerste contactmoment — Auto-compressie van foto\'s en video\'s'},
   aanmelden:{title:'Nieuwe aanmelding', sub:'Gestandaardiseerd intakeformulier met troubleshoot-check'},
   logistiek:{title:'Retouren & logistiek', sub:'QR-inname, statusupdates en verzendkeuzes'},
   whatsapp:{title:'Interne AI-assistent', sub:'Vraag een orderstatus op via de servicebot'},
@@ -456,6 +457,65 @@ function viewAanmelden(){
         </div>
       </div>
     </div>
+  </div>`;
+}
+
+/* ---- KLANT INTAKE FORMULIER ---- */
+function viewKlantform(){
+  return `
+  <div class="card pad" style="max-width:900px">
+    <div class="eyebrow" style="color:var(--yellow-deep)">Stap 1: Jouw gegevens</div>
+    <div class="two" style="margin-top:12px;margin-bottom:12px">
+      <div class="field"><label>Voornaam *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="Uw voornaam"/></div>
+      <div class="field"><label>Achternaam *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="Uw achternaam"/></div>
+    </div>
+    <div class="field" style="margin-bottom:12px"><label>E-mailadres *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="Uw e-mailadres"/></div>
+    <div class="two" style="margin-bottom:18px">
+      <div class="field"><label>Postcode *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="1234 AB"/></div>
+      <div class="field"><label>Huisnummer *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="Nr."/></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="eyebrow" style="color:var(--yellow-deep)">Stap 2: Product & Klacht</div>
+    <div class="two" style="margin-top:12px;margin-bottom:12px">
+      <div class="field"><label>Ordernummer (8 cijfers) *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="Bijv. 251195109"/></div>
+      <div class="field"><label>Serienummer *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="Scan of typ het serienummer"/></div>
+    </div>
+    <div class="field" style="margin-bottom:18px"><label>Wat is het probleem? *</label><textarea class="vbox area" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line);resize:vertical" placeholder="Omschrijf de klacht of schade..."></textarea></div>
+
+    <div class="divider"></div>
+    <div class="eyebrow" style="color:var(--yellow-deep);margin-bottom:12px">Stap 3: Bestanden Uploaden (Terabytes ondersteund via Auto-Compressie)</div>
+    
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+      ${uploadBlock('Factuur / Aankoopbewijs', 'factuurUp')}
+      ${uploadBlock('Foto Serienummer (Achterkant TV)', 'serieUp')}
+      ${uploadBlock('Foto Schade Doos', 'doosUp')}
+      ${uploadBlock('Foto / Video Schade TV', 'tvUp')}
+    </div>
+
+    <button id="klantFormSubmit" class="btn btn-yellow" style="width:100%;justify-content:center;padding:12px;font-size:15px">${ic('send')} Aanmelding Verzenden & Pushen naar Dashboard</button>
+
+    <!-- Upload Progress Modal -->
+    <div id="klantUploadModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
+      <div class="card pad" style="width:400px;text-align:center;background:#fff">
+        <h3 style="margin-bottom:8px">Media Comprimeren...</h3>
+        <p class="muted" style="font-size:13px;margin-bottom:16px">Lokale frontend compressie (zoals WhatsApp) verkleint bestanden van 50MB+ naar < 2MB voordat het naar AWS S3 gaat.</p>
+        <div style="background:var(--field);border-radius:8px;height:8px;width:100%;overflow:hidden;margin-bottom:8px">
+          <div id="klantProgressBar" style="background:var(--green);height:100%;width:0%;transition:width 0.2s"></div>
+        </div>
+        <div id="klantProgressText" style="font-size:12px;color:var(--ink);font-weight:bold">0%</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function uploadBlock(label, id){
+  return `
+  <div style="border:2px dashed var(--line);border-radius:12px;padding:20px;text-align:center;background:var(--field);cursor:pointer" onclick="document.getElementById('${id}').click()">
+    <div style="color:var(--yellow-deep);margin-bottom:8px">${ic('check')}</div>
+    <div style="font-weight:600;font-size:14px">${label}</div>
+    <div style="font-size:12px;color:var(--ink-4);margin-top:4px">Klik om grote bestanden te kiezen</div>
+    <input type="file" id="${id}" style="display:none" accept="image/*,video/*,application/pdf" />
   </div>`;
 }
 
@@ -831,9 +891,10 @@ function navigate(view,arg){
   content.innerHTML = view==='order'?viewOrder(arg):(RENDER[view]||viewDashboard)();
   content.scrollTo&&content.scrollTo(0,0); window.scrollTo(0,0);
   if(view==='whatsapp') initWa();
-  if(view==='portaal') initPortal();
+  if(view==='portaal') initPortaal();
   if(view==='aanmelden') initAanmelden();
   if(view==='odm') initOdm();
+  if(view==='klantform') initKlantform();
   bindDynamic();
   // animate bars/progress
   requestAnimationFrame(()=>{});
@@ -904,12 +965,45 @@ function setupWaBot(mode, replyFunc){
   input.onkeydown=e=>{if(e.key==='Enter'){ask(input.value);input.value='';}};
   $('#waSugg'+mode).querySelectorAll('button').forEach(b=>b.onclick=()=>ask(b.dataset.q));
 }
+
 /* Portal lookup */
-function initPortal(){
+function initPortaal(){
+  const b=$('#trackBtn2');
+  if(b)b.onclick=()=>toast('Klant volgt order succesvol.');
   const btn=$('#trackBtn'),input=$('#trackInput');
   function look(){const q=input.value.toLowerCase().trim();const o=ORDERS.find(x=>x.id===q||x.serie.toLowerCase()===q);$('#trackResult').innerHTML=portalCard(o);$('#trackResult').querySelectorAll('[data-toast]').forEach(b=>b.onclick=()=>toast(b.dataset.toast));}
   if(btn) btn.onclick=look;
   if(input) input.onkeydown=e=>{if(e.key==='Enter')look();};
+}
+
+function initKlantform(){
+  const btn = $('#klantFormSubmit');
+  const modal = $('#klantUploadModal');
+  const bar = $('#klantProgressBar');
+  const text = $('#klantProgressText');
+  
+  if(btn && modal) {
+    btn.onclick = () => {
+      modal.style.display = 'flex';
+      let p = 0;
+      const intv = setInterval(() => {
+        p += Math.floor(Math.random() * 15) + 5;
+        if(p >= 100) {
+          p = 100;
+          clearInterval(intv);
+          setTimeout(() => {
+            modal.style.display = 'none';
+            toast('Files gecomprimeerd (95% kleiner) & Ticket naar Dashboard gepusht!');
+            // Reset formulier simulatie
+            bar.style.width = '0%';
+            text.innerText = '0%';
+          }, 600);
+        }
+        bar.style.width = p + '%';
+        text.innerText = p + '%';
+      }, 200);
+    };
+  }
 }
 
 function initAanmelden(){
