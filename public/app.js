@@ -846,9 +846,9 @@ function initWa(){
   if(storeSel && storeNm && waBodyExtern) {
     storeSel.onchange = () => {
       const s = storeSel.value;
-      storeNm.innerText = \`helloTV \${s} (Filiaal)\`;
-      const t=new Date();const tm=\`\${String(t.getHours()).padStart(2,'0')}:\${String(t.getMinutes()).padStart(2,'0')}\`;
-      waBodyExtern.innerHTML = bubble('in', \`Welkom bij helloTV \${s}! Hoe kunnen we je helpen?\`, tm);
+      storeNm.innerText = `helloTV ${s} (Filiaal)`;
+      const t=new Date();const tm=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+      waBodyExtern.innerHTML = bubble('in', `Welkom bij helloTV ${s}! Hoe kunnen we je helpen?`, tm);
       const box = $('#waContextBox');
       if(box) box.innerHTML = '<em>Nog geen klachtomschrijving ontvangen via doorschakeling...</em>';
     };
