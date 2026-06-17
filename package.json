@@ -1,0 +1,12 @@
+{
+  "name": "hellotv-service-support-dashboard-pro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Service & Support Dashboard Pro — helloTV. Statisch prototype, klaar voor uitwerking met Supabase + Cloudinary op Vercel.",
+  "scripts": {
+    "dev": "npx serve public",
+    "start": "npx serve public"
+  },
+  "keywords": ["hellotv", "service", "reparatie", "support", "dashboard"],
+  "license": "UNLICENSED"
+}
