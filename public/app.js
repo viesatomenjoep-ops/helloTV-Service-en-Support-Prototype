@@ -584,7 +584,7 @@ function botReplyExtern(qRaw){
 function viewOdm(){
   return `
   <div class="card pad" style="margin-bottom:18px;background:var(--ink);color:#fff">
-    <img src="Hello-tv-logo-CMYK-ZwG_google-display.png.webp" class="logo-img" style="filter: brightness(0) invert(1);margin-bottom:10px" alt="helloTV"/>
+    <img src="62c43abf0e3e8d02c9849c65-198x149-2x.avif" class="logo-img" style="filter: brightness(0) invert(1);margin-bottom:10px" alt="helloTV"/>
     <h2 style="font-family:var(--font-d);font-size:20px;font-weight:700">Open Doos Modellen Registratie</h2>
     <p style="color:#a1a1aa;font-size:13.5px;margin-top:4px">Meld een toestel aan voor de ODM-voorraad of pas een bestaande status aan.</p>
   </div>
