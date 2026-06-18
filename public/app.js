@@ -979,11 +979,15 @@ function viewSla(){
 /* ---- KLANTPORTAAL ---- */
 function viewPortaal(){
   const brands = [
-    { name: 'Samsung (GSP)', status: 'API Gekoppeld', color: 'blue', sync: 'Live', items: 12 },
-    { name: 'LG (GSFS)', status: 'API Gekoppeld', color: 'red', sync: '1 min geleden', items: 8 },
-    { name: 'Sony', status: 'API Gekoppeld', color: 'ink', sync: 'Live', items: 4 },
-    { name: 'CE Repair', status: 'API Gekoppeld', color: 'yellow', sync: 'Live', items: 25 },
-    { name: 'Dynafix', status: 'API Gekoppeld', color: 'violet', sync: '5 min geleden', items: 14 }
+    { name: 'Samsung (TV & Audio)', status: 'API Gekoppeld', color: 'blue', sync: 'Live', items: 12 },
+    { name: 'LG (TV & Audio)', status: 'API Gekoppeld', color: 'red', sync: '1 min geleden', items: 8 },
+    { name: 'Sony (TV & Audio)', status: 'API Gekoppeld', color: 'ink', sync: 'Live', items: 4 },
+    { name: 'TP Vision (Philips)', status: 'API Gekoppeld', color: 'yellow', sync: 'Live', items: 5 },
+    { name: 'TCL', status: 'API Gekoppeld', color: 'red', sync: '5 min geleden', items: 2 },
+    { name: 'Sonos (Audio)', status: 'API Gekoppeld', color: 'ink', sync: 'Live', items: 7 },
+    { name: 'Denon (Audio)', status: 'API Gekoppeld', color: 'violet', sync: 'Live', items: 3 },
+    { name: 'CE Repair (Reparateur)', status: 'API Gekoppeld', color: 'yellow', sync: 'Live', items: 25 },
+    { name: 'Dynafix (Reparateur)', status: 'API Gekoppeld', color: 'violet', sync: '5 min geleden', items: 14 }
   ];
 
   return `
