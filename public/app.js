@@ -862,6 +862,11 @@ function botReplyIntern(qRaw){
 function botReplyExtern(qRaw){
   const q=qRaw.toLowerCase().trim();
   
+  // Specific Troubleshooting Demo
+  if(q.includes('achterspeaker') && q.includes('99f')) {
+    return `Heb je de Samsung HW-Q990C/99F? Zorg ervoor dat je de achterspeakers opnieuw koppelt door de ID SET knop 5 seconden in te drukken totdat de blauwe LED knippert. Is het probleem hiermee opgelost?`;
+  }
+
   // Service/Repair matching
   if(q.includes('tv gaat niet aan') || q.includes('kapot') || q.includes('defect') || q.includes('probleem') || q.includes('niet meer') || q.includes('reparatie') || q.includes('service') || q.includes('garantie') || q.includes('stuk')) {
     setTimeout(() => {
@@ -973,41 +978,44 @@ function viewSla(){
 
 /* ---- KLANTPORTAAL ---- */
 function viewPortaal(){
-  const o=ORDERS.find(x=>x.id==='251204417');
-  return `
-  <div class="portal">
-    <div class="track-hero" style="padding:10px 16px;background:var(--ink);color:#fff;border-radius:8px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <div style="flex:1;min-width:200px">
-        <h2 style="font-family:var(--font-d);font-size:15px;font-weight:700">tv volg je reparatie</h2>
-        <p style="color:#a1a1aa;font-size:12px;margin-top:2px">Altijd up-to-date. Geen "wanneer hoor ik wat" meer.</p>
-      </div>
-      <div class="track-search" style="margin:0;display:flex;gap:8px">
-        <input id="trackInput" placeholder="Ordernummer..." value="251204417" style="padding:6px 10px;font-size:13px;border-radius:6px;border:none;color:var(--ink)"/>
-        <button class="btn btn-yellow" id="trackBtn" style="padding:6px 12px;font-size:13px">${ic('arrow')} Volg</button>
-      </div>
-    </div>
+  const brands = [
+    { name: 'Samsung (GSP)', status: 'API Gekoppeld', color: 'blue', sync: 'Live', items: 12 },
+    { name: 'LG (GSFS)', status: 'API Gekoppeld', color: 'red', sync: '1 min geleden', items: 8 },
+    { name: 'Sony', status: 'API Gekoppeld', color: 'ink', sync: 'Live', items: 4 },
+    { name: 'CE Repair', status: 'API Gekoppeld', color: 'yellow', sync: 'Live', items: 25 },
+    { name: 'Dynafix', status: 'API Gekoppeld', color: 'violet', sync: '5 min geleden', items: 14 }
+  ];
 
-
-    <div id="trackResult" style="margin-top:18px">${portalCard(o)}</div>
-  </div>`;
-}
-function portalCard(o){
-  if(!o) return `<div class="card pad empty">Geen reparatie gevonden. Controleer je ordernummer.</div>`;
   return `
-  <div class="card pad">
-    <div class="between" style="margin-bottom:16px;flex-wrap:wrap;gap:12px">
-      <div><div class="eyebrow">Order ${o.id}</div><div style="font-family:var(--font-d);font-size:19px;font-weight:700;margin-top:3px">${o.merk} ${o.type}</div></div>
-      ${pill(o.status)}
-    </div>
-    <div class="pbar"><i style="width:${o.progress}%"></i></div>
-    <div class="between" style="margin-top:8px"><span class="tiny muted">Aangemeld</span><span class="tiny muted" style="font-weight:600;color:var(--ink-2)">Verwachte gereedheid: ${o.eta}</span></div>
-    <div class="divider"></div>
-    <div class="timeline">${o.timeline.map(tlItem).join('')}</div>
-    <div class="divider"></div>
-    <div class="between" style="flex-wrap:wrap;gap:12px">
-      <div class="stack"><span class="eyebrow">Vragen?</span><span class="tiny muted">Reageer in deze tracker — je hoeft niet te bellen.</span></div>
-      <button class="btn btn-ghost" data-toast="Bericht verstuurd naar het serviceteam.">${ic('chat')} Stel een vraag</button>
-    </div>
+  <div class="card pad" style="margin-bottom:18px;background:var(--ink);color:#fff">
+    <h2 style="font-family:var(--font-d);font-size:20px;font-weight:700">Merk Portalen & API Integraties</h2>
+    <p style="color:#a1a1aa;font-size:13.5px;margin-top:4px">Geen losse logins meer. Alle externe fabrikanten- en reparateursystemen zijn succesvol gekoppeld aan jullie centrale database.</p>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr 1fr; gap:16px;">
+    ${brands.map(b => `
+      <div class="card pad" style="display:flex;flex-direction:column;gap:12px;border-top:4px solid var(--${b.color})">
+        <div class="between">
+          <strong style="font-size:16px;font-family:var(--font-d)">${b.name}</strong>
+          <span class="pill p-green"><span class="dot"></span>${b.status}</span>
+        </div>
+        <div class="divider" style="margin:0"></div>
+        <div class="between" style="font-size:13px">
+          <span class="muted">Laatste sync:</span>
+          <strong>${b.sync}</strong>
+        </div>
+        <div class="between" style="font-size:13px">
+          <span class="muted">Actieve tickets:</span>
+          <strong>${b.items}</strong>
+        </div>
+        <button class="btn btn-ghost" style="margin-top:8px;justify-content:center" data-toast="De API pusht en pullt data automatisch op de achtergrond.">${ic('sync')} Handmatige Sync</button>
+      </div>
+    `).join('')}
+  </div>
+  
+  <div class="card pad" style="margin-top:18px;display:flex;gap:12px;align-items:flex-start">
+    <span style="color:var(--green)">${ic('check')}</span>
+    <p class="tiny muted">Zodra een monteur van CE Repair of Dynafix een update doet in hún systeem, haalt onze API dit live op en zien wij het direct terug in het "Reparaties" overzicht. 100% geautomatiseerd.</p>
   </div>`;
 }
 
