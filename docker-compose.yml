@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg14
+    container_name: hellotv-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: hellotv_admin
+      POSTGRES_PASSWORD: supersecretpassword
+      POSTGRES_DB: hellotv_service
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  n8n:
+    image: n8nio/n8n
+    container_name: hellotv-n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=Europe/Amsterdam
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+  minio:
+    image: minio/minio
+    container_name: hellotv-minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadminpassword
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: hellotv-api
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=hellotv_admin
+      - POSTGRES_PASSWORD=supersecretpassword
+      - POSTGRES_DB=hellotv_service
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  n8n_data:
+  minio_data:

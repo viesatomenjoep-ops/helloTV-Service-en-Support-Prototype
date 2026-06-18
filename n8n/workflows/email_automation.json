@@ -1,0 +1,116 @@
+{
+  "name": "Outlook Email Auto-Responder (klantenservice@reparatie.nl)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "event": "messageCreated",
+        "folderId": "Inbox"
+      },
+      "name": "Microsoft Outlook Trigger",
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [ 100, 300 ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "prompt": "Lees de inkomende e-mail: {{$json[\"bodyPreview\"]}}. Identificeer of het een van de 30 veelgestelde vragen is (bijv. 'Wanneer is mijn tv kapot?', 'Wat als er schade is?', 'Te laat geleverd?'). Geef een professioneel antwoord op basis van de Kennisbank.",
+        "options": {}
+      },
+      "name": "OpenAI (Categorisatie & Antwoord)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [ 350, 300 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"antwoordGevonden\"]}}",
+              "value2": "ja"
+            }
+          ]
+        }
+      },
+      "name": "IF (Bekende Vraag?)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 550, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "to": "={{$node[\"Microsoft Outlook Trigger\"].json[\"sender\"][\"emailAddress\"][\"address\"]}}",
+        "subject": "RE: {{$node[\"Microsoft Outlook Trigger\"].json[\"subject\"]}}",
+        "body": "={{$node[\"OpenAI (Categorisatie & Antwoord)\"].json[\"text\"]}}",
+        "isHtml": true
+      },
+      "name": "Outlook Reply (Auto)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 1,
+      "position": [ 800, 200 ]
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "messageId": "={{$node[\"Microsoft Outlook Trigger\"].json[\"id\"]}}",
+        "destinationId": "Handmatige-Actie-Vereist"
+      },
+      "name": "Verplaats naar Medewerker Inbox",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 1,
+      "position": [ 800, 400 ]
+    }
+  ],
+  "connections": {
+    "Microsoft Outlook Trigger": {
+      "main": [
+        [
+          {
+            "node": "OpenAI (Categorisatie & Antwoord)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI (Categorisatie & Antwoord)": {
+      "main": [
+        [
+          {
+            "node": "IF (Bekende Vraag?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF (Bekende Vraag?)": {
+      "main": [
+        [
+          {
+            "node": "Outlook Reply (Auto)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Verplaats naar Medewerker Inbox",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false
+}

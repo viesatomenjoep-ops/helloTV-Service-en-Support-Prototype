@@ -1,0 +1,65 @@
+{
+  "name": "WhatsApp AI Bot (Twilio/MessageBird)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-webhook",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook (Inkomend Bericht)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [ 250, 300 ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "prompt": "Je bent de HelloTV service assistent. Gebruik de Kennisbank om deze vraag te beantwoorden: {{$json[\"body\"][\"Body\"]}}",
+        "options": {}
+      },
+      "name": "OpenAI (Kennisbank RAG)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [ 450, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "to": "={{$json[\"body\"][\"From\"]}}",
+        "message": "={{$json[\"message\"]}}",
+        "options": {}
+      },
+      "name": "Twilio WhatsApp",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [ 650, 300 ]
+    }
+  ],
+  "connections": {
+    "Webhook (Inkomend Bericht)": {
+      "main": [
+        [
+          {
+            "node": "OpenAI (Kennisbank RAG)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI (Kennisbank RAG)": {
+      "main": [
+        [
+          {
+            "node": "Twilio WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false
+}

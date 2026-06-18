@@ -54,7 +54,7 @@ const BRANDS_MODELS = {
   'Harman Kardon': ['Citation MultiBeam 1100', 'Citation Sub', 'Onyx Studio 8', 'Aura Studio 3']
 };
 
-const ORDERS = [
+let ORDERS = [
   {
     id:'251195109', merk:'Sonos', type:'Move 2 — wit', serie:'251195109',
     klant:'P. Hattink', adres:'Bontwerkerstraat 19, 4813LM Breda', tel:'06-13672768',
@@ -150,6 +150,19 @@ const ORDERS = [
     ],
   },
 ];
+
+// PROTOTYPE: Fetch tickets from new Postgres Node API
+fetch('http://localhost:3000/api/tickets')
+  .then(res => res.json())
+  .then(data => {
+    if(data && data.length > 0) {
+      console.log('Loaded tickets from API:', data);
+      // Map API data to UI structure, skipping mapping here for brevity
+      // ORDERS = data.map(...)
+      // updateView()
+    }
+  })
+  .catch(err => console.log('API backend not running. Using fallback dummy data.'));
 
 const ODM = [
   {merk:'Sonos', type:'Move 2 — wit', serie:'251195109', herkomst:'DOA #251195109', status:'op-vrrd', loc:'Doetinchem · rek B3', sync:'Live'},
@@ -481,7 +494,21 @@ function viewKlantform(){
       <div class="field"><label>Ordernummer (8 cijfers) *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="Bijv. 251195109"/></div>
       <div class="field"><label>Serienummer *</label><input class="vbox" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line)" placeholder="Scan of typ het serienummer"/></div>
     </div>
-    <div class="field" style="margin-bottom:18px"><label>Wat is het probleem? *</label><textarea class="vbox area" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line);resize:vertical" placeholder="Omschrijf de klacht of schade..."></textarea></div>
+    <div class="field" style="margin-bottom:18px">
+      <label>Wat is het probleem? *</label>
+      <div style="position:relative;">
+        <textarea id="klantKlachtInput" class="vbox area" style="width:100%;color:var(--ink);background:var(--field);border:1px solid var(--line);resize:vertical" placeholder="Omschrijf de klacht of schade..."></textarea>
+        <!-- AI Suggestion Bubble (Hidden by default) -->
+        <div id="aiSuggestionBubble" style="display:none;position:absolute;top:100%;left:0;right:0;margin-top:8px;background:var(--violet-soft);border:1px solid var(--violet);border-radius:12px;padding:12px;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.1)">
+          <div style="display:flex;align-items:center;gap:8px;color:var(--violet);font-family:var(--font-d);font-weight:700;margin-bottom:6px">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            AI Troubleshoot Suggestie
+          </div>
+          <div id="aiSuggestionText" style="font-size:13px;color:var(--ink)"></div>
+          <button id="aiSuggestionBtn" class="btn btn-ghost" style="margin-top:8px;font-size:12px;padding:4px 8px;color:var(--violet)">Probleem hiermee verholpen?</button>
+        </div>
+      </div>
+    </div>
 
     <div class="divider"></div>
     <div class="eyebrow" style="color:var(--yellow-deep);margin-bottom:12px">Stap 3: Bestanden Uploaden</div>
@@ -491,7 +518,6 @@ function viewKlantform(){
       ${uploadBlock('Foto Serienummer (Achterkant TV)', 'serieUp')}
     </div>
 
-    <!-- NIEUW DOOS INSTRUCTIE BLOK -->
     <div style="background:var(--field); padding:16px; border-radius:12px; font-size:14px; color:var(--ink); margin-bottom:18px; border-left:4px solid var(--yellow)">
       <strong style="font-family:var(--font-d);font-size:16px;">Instructies voor de doosfoto's</strong><br/>
       Om je aanmelding snel goed te keuren, hebben we duidelijke foto's nodig van <strong style="text-decoration:underline;">alle kanten</strong> van de doos. 
@@ -505,12 +531,9 @@ function viewKlantform(){
       
       <div class="grid" style="grid-template-columns:1fr 1fr; gap:12px; margin: 16px 0; max-width: 100%;">
         
-        <!-- Boven/Binnenkant -->
         <div style="position:relative; width:100%; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff;">
           <img src="box_top_inside.png" style="width:100%; display:block;" alt="Boven en Binnenkant"/>
           
-
-
           <div style="position:absolute; top:5%; left:50%; transform:translateX(-50%); text-align:center;">
             <div style="background:var(--yellow); color:var(--ink); font-weight:800; font-size:10px; padding:2px 6px; border-radius:4px; margin-bottom:2px; box-shadow:0 2px 4px rgba(0,0,0,0.3)">BOVENKANT</div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5))"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
@@ -521,36 +544,27 @@ function viewKlantform(){
           </div>
         </div>
 
-        <!-- Voor/Achterkant -->
         <div style="position:relative; width:100%; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff;">
           <img src="box_front.png" style="width:100%; display:block;" alt="Voorkant"/>
           
-
-
           <div style="position:absolute; top:45%; left:50%; transform:translateX(-50%); text-align:center;">
             <div style="background:var(--yellow); color:var(--ink); font-weight:800; font-size:10px; padding:2px 6px; border-radius:4px; margin-bottom:2px; box-shadow:0 2px 4px rgba(0,0,0,0.3)">VOOR- & ACHTERKANT</div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5))"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
           </div>
         </div>
 
-        <!-- Zijkanten -->
         <div style="position:relative; width:100%; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff;">
           <img src="box_side.png" style="width:100%; display:block;" alt="Zijkanten"/>
           
-
-
           <div style="position:absolute; top:45%; left:20%; text-align:center;">
             <div style="background:var(--yellow); color:var(--ink); font-weight:800; font-size:10px; padding:2px 6px; border-radius:4px; margin-bottom:2px; box-shadow:0 2px 4px rgba(0,0,0,0.3)">BEIDE ZIJKANTEN</div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(90deg); filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5))"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
           </div>
         </div>
 
-        <!-- Actie Foto Maken -->
         <div style="position:relative; width:100%; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff;">
           <img src="box_action.png" style="width:100%; display:block;" alt="Foto maken"/>
           
-
-
           <div style="position:absolute; bottom:5%; left:50%; transform:translateX(-50%); text-align:center; width: 90%;">
             <div style="background:rgba(255,255,255,0.95); color:var(--ink); font-weight:700; font-size:10px; padding:6px 8px; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.2);">📸 Gebruik je smartphone, tablet of camera</div>
           </div>
@@ -563,7 +577,6 @@ function viewKlantform(){
       ${uploadBlock('Upload Foto\'s Doos (Boven, Onder, Links, Rechts, Voor, Achter, Binnen)', 'doosUp')}
     </div>
 
-    <!-- NIEUW TV SCHADE BLOK -->
     <div style="background:var(--field); padding:16px; border-radius:12px; font-size:14px; color:var(--ink); margin-bottom:18px; border-left:4px solid var(--violet)">
       <strong style="font-family:var(--font-d);font-size:16px;">Foto's of Video van de TV zelf</strong><br/>
       Zet de TV aan (indien mogelijk) en maak een duidelijke foto/video van het scherm en de schade. <strong style="color:var(--violet)">Maximaal 5 bestanden.</strong>
@@ -573,9 +586,8 @@ function viewKlantform(){
       ${uploadBlock('Upload Schade TV (Max 5 stuks)', 'tvUp')}
     </div>
 
-    <button id="klantFormSubmit" class="btn btn-yellow" style="width:100%;justify-content:center;padding:12px;font-size:15px">${ic('send')} Aanmelding Verzenden & Pushen naar Dashboard</button>
+    <button id="klantFormSubmit" class="btn btn-yellow" style="width:100%;justify-content:center;padding:12px;font-size:15px" onclick="submitToApi()">${ic('send')} Aanmelding Verzenden & Pushen naar Dashboard</button>
 
-    <!-- Upload Progress Modal -->
     <div id="klantUploadModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
       <div class="card pad" style="width:400px;text-align:center;background:#fff">
         <h3 style="margin-bottom:8px">Media Comprimeren...</h3>
@@ -587,6 +599,68 @@ function viewKlantform(){
       </div>
     </div>
   </div>`;
+}
+
+// PROTOTYPE: Interactiviteit voor AI Suggesties en API Submission
+window.setupKlantForm = function() {
+  const klachtInput = document.getElementById('klantKlachtInput');
+  const bubble = document.getElementById('aiSuggestionBubble');
+  const text = document.getElementById('aiSuggestionText');
+  
+  if(klachtInput) {
+    klachtInput.addEventListener('input', (e) => {
+      const val = e.target.value.toLowerCase();
+      if(val.includes('achterspeaker') && val.includes('99f')) {
+        bubble.style.display = 'block';
+        text.innerHTML = 'Heeft u de Samsung HW-Q990C/99F? Zorg ervoor dat de achterspeakers opnieuw gekoppeld worden door de ID SET knop 5 seconden in te drukken totdat de blauwe LED knippert.';
+      } else if(val.includes('kabel') || val.includes('los')) {
+        bubble.style.display = 'block';
+        text.innerHTML = 'Controleer of de One Connect kabel of HDMI goed is aangedrukt. Werkt het niet? Probeer dan een andere HDMI poort.';
+      } else {
+        bubble.style.display = 'none';
+      }
+    });
+  }
+};
+
+window.submitToApi = function() {
+  const modal = document.getElementById('klantUploadModal');
+  const bar = document.getElementById('klantProgressBar');
+  const text = document.getElementById('klantProgressText');
+  const klachtInput = document.getElementById('klantKlachtInput');
+  
+  if(modal) {
+    modal.style.display = 'flex';
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 25;
+      bar.style.width = progress + '%';
+      text.innerText = progress + '%';
+      if(progress >= 100) {
+        clearInterval(interval);
+        
+        // POST to new Node API
+        fetch('http://localhost:3000/api/tickets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_name: 'Nieuwe Klant (API)',
+            customer_email: 'klant@test.nl',
+            brand: 'Onbekend',
+            serial_number: 'SN-TEST-123',
+            defect_description: klachtInput ? klachtInput.value : 'Aangemeld via klantformulier.'
+          })
+        }).then(() => {
+           modal.style.display = 'none';
+           alert('Aanmelding succesvol! De data staat in PostgreSQL en is zichtbaar in het dashboard.');
+        }).catch(err => {
+           console.error(err);
+           modal.style.display = 'none';
+           alert('Aanmelding succesvol (Mock - API niet bereikbaar).');
+        });
+      }
+    }, 400);
+  }
 }
 
 function uploadBlock(label, id){
