@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: hellotv-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+      - n8n
+      - minio
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: hellotv-api-prod
+    restart: always
+    env_file:
+      - .env.production
+    depends_on:
+      - postgres
+
+  postgres:
+    image: timescale/timescaledb:latest-pg14
+    container_name: hellotv-postgres-prod
+    restart: always
+    env_file:
+      - .env.production
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  n8n:
+    image: n8nio/n8n
+    container_name: hellotv-n8n-prod
+    restart: always
+    env_file:
+      - .env.production
+    volumes:
+      - n8n_data_prod:/home/node/.n8n
+
+  qdrant:
+    image: qdrant/qdrant
+    container_name: hellotv-qdrant-prod
+    restart: always
+    volumes:
+      - qdrant_data_prod:/qdrant/storage
+
+  minio:
+    image: minio/minio
+    container_name: hellotv-minio-prod
+    restart: always
+    env_file:
+      - .env.production
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data_prod:/data
+
+volumes:
+  postgres_data_prod:
+  n8n_data_prod:
+  qdrant_data_prod:
+  minio_data_prod:

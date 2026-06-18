@@ -294,6 +294,29 @@ function viewReparaties(){
     </div>
     <button class="btn btn-yellow" data-go="aanmelden">${ic('doc')} Nieuwe aanmelding</button>
   </div>
+  
+  <div class="card pad" style="margin-bottom:18px;">
+    <div class="eyebrow">Turnaround Time (Dagen) per Servicepartner</div>
+    <div style="display:flex; gap:16px; align-items:flex-end; height:120px; margin-top:16px; padding-bottom:8px; border-bottom:1px solid var(--line);">
+      <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px;">
+        <div style="background:var(--yellow); width:40px; height:60%; border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:12px; font-weight:600;">CE-Repair (8d)</span>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px;">
+        <div style="background:var(--blue); width:40px; height:80%; border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:12px; font-weight:600;">Dynafix (11d)</span>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px;">
+        <div style="background:var(--violet); width:40px; height:45%; border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:12px; font-weight:600;">Sonos (6d)</span>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px;">
+        <div style="background:var(--ink-4); width:40px; height:30%; border-radius:4px 4px 0 0;"></div>
+        <span style="font-size:12px; font-weight:600;">Doel (<14d)</span>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div style="padding:16px 6px 0">
       <table class="tbl">

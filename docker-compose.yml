@@ -61,7 +61,17 @@ services:
     depends_on:
       - postgres
 
+  qdrant:
+    image: qdrant/qdrant
+    container_name: hellotv-qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
 volumes:
   postgres_data:
   n8n_data:
   minio_data:
+  qdrant_data:

@@ -16,13 +16,23 @@
     {
       "parameters": {
         "model": "gpt-4o",
-        "prompt": "Je bent de HelloTV service assistent. Gebruik de Kennisbank om deze vraag te beantwoorden: {{$json[\"body\"][\"Body\"]}}",
+        "prompt": "Je bent de HelloTV service assistent. Gebruik de context uit de Vector Database (Qdrant) om deze vraag te beantwoorden: {{$json[\"body\"][\"Body\"]}}",
         "options": {}
       },
       "name": "OpenAI (Kennisbank RAG)",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1,
       "position": [ 450, 300 ]
+    },
+    {
+      "parameters": {
+        "collectionName": "hellotv-knowledge",
+        "url": "http://qdrant:6333"
+      },
+      "name": "Qdrant Vector Store",
+      "type": "n8n-nodes-base.qdrant",
+      "typeVersion": 1,
+      "position": [ 450, 450 ]
     },
     {
       "parameters": {

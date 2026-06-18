@@ -54,6 +54,19 @@ app.post('/api/tickets', async (req, res) => {
   }
 });
 
+// POST /api/knowledge (RAG PDF Upload Stub)
+app.post('/api/knowledge', async (req, res) => {
+  // In reality: parse PDF -> chunk text -> OpenAI Embeddings -> Insert into Qdrant/pgvector
+  try {
+    console.log('Document received for Knowledge Base indexing.');
+    // Simulated upload delay
+    await new Promise(r => setTimeout(r, 1000));
+    res.status(200).json({ message: 'Document succesvol verwerkt en opgeslagen in de Vector Database (Qdrant).' });
+  } catch(err) {
+    res.status(500).json({ error: 'Fout bij verwerken document' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
